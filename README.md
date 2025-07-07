@@ -41,11 +41,11 @@ src/
 ├── app/
 │ ├── pages/
 │ │ ├── auth/
-│ │ │ ├── login/ ---------------------->Vista de inicio de sesión
+│ │ │ ├── login/ ----------------------> Vista de inicio de sesión
 │ │ │ │ ├── login.component.ts
 │ │ │ │ ├── login.component.html
-│ │ │ │ └── login.component.css
-│ │ │ ├── register/ ---------------------->Vista de regitro de paciente
+│ │ │ │ └── login.component.css -------> estilos de login 
+│ │ │ ├── register/ ----------------------> Vista de regitro de paciente
 │ │ │ │ ├── register.component.ts
 │ │ │ │ ├── register.component.html
 │ │ │ │ └── register.component.css
@@ -55,14 +55,14 @@ src/
 │ │ ├── medico-dashboard.component.html
 │ │ ├── medico-dashboard.component.css
 │ │ └── dashboard.routes.ts
-│ ├── app.routes.ts
+│ ├── app.routes.ts -----------------> Archivo de rutas globales
 │ └── app.component.ts
 ├── assets/
 │ └── img/
 │ └── logo.png
 ├── index.html
-├── main.ts
-└── styles.css
+├── main.ts -----> Aquí se arranca el módulo principal (AppComponent) y el sistema de rutas.
+└── styles.css ----> Archivo global de estilos
 ```
 --- 
 
