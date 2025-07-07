@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <h2> Iniciar Sesión</h2>
+    </div>
+
+    <form>
+      <div class="p-fluid">
+        <div class="field mb-3">
+          <label for="correo">Correo electrónico</label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-envelope"></i>
+            <input id="correo" type="email" pInputText placeholder="ejemplo@correo.com" class="w-full" />
+          </span>
+        </div>
+
+        <div class="field mb-3">
+          <label for="password">Contraseña</label>
+          <p-password id="password" toggleMask inputStyleClass="w-full" [feedback]="false" />
+        </div>
+
+        <button pButton label="Ingresar" class="w-full mt-3"></button>
+      </div>
+    </form>
+  </div>
+</div>
