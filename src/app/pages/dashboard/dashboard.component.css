@@ -1,0 +1,11 @@
+.dashboard-wrapper {
+  padding: 2rem;
+  text-align: center;
+  background-color: #f4f8f9;
+  min-height: 100vh;
+}
+
+.dashboard-wrapper h1 {
+  color: #0b8fac;
+  margin-bottom: 1rem;
+}

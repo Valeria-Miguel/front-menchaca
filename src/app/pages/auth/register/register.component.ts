@@ -74,7 +74,7 @@ export class RegisterComponent {
   console.log('Formulario válido', this.registerForm.value);
 
   // Redireccionar al login (sin backend por ahora)
-  this.router.navigate(['/login']);
+  this.router.navigate(['/auth/login']);
   
 }
 
