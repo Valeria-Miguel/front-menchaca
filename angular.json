@@ -24,7 +24,9 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+
+              },
+              "src/assets"
             ],
             "styles": [
               "src/styles.css"
@@ -81,8 +83,9 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
-              }
+                "input": "public" 
+              },
+              "src/assets"
             ],
             "styles": [
                 "node_modules/primeng/resources/themes/lara-light-blue/theme.css",

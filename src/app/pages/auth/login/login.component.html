@@ -1,25 +1,63 @@
 <div class="login-wrapper">
   <div class="login-card">
-    <div class="text-center mb-4">
-      <h2> Iniciar Sesión</h2>
+    <div class="logo-container">
+      <img src="assets/img/logo.png" alt="Logo Menchaca" class="logo" />
     </div>
 
-    <form>
+    <h2 class="form-title">Iniciar Sesión</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <div class="p-fluid">
-        <div class="field mb-3">
+        <!-- Correo -->
+        <div class="field-group">
           <label for="correo">Correo electrónico</label>
-          <span class="p-input-icon-left w-full">
+          <span class="p-input-icon-left">
             <i class="pi pi-envelope"></i>
-            <input id="correo" type="email" pInputText placeholder="ejemplo@correo.com" class="w-full" />
+            <input
+              id="correo"
+              type="email"
+              pInputText
+              placeholder="ejemplo@correo.com"
+              formControlName="correo"
+              class="w-full"
+            />
+          </span>
+          <small *ngIf="f['correo'].touched && f['correo'].errors" class="error-message">
+            <span *ngIf="f['correo'].errors['required']">Campo requerido</span>
+            <span *ngIf="f['correo'].errors['email']">Correo inválido</span>
+          </small>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="field-group">
+          <label for="password">Contraseña</label>
+          <span class="p-input-icon-left">
+            <i class="pi pi-lock"></i>
+            <p-password
+              id="password"
+              formControlName="password"
+              toggleMask
+              inputStyleClass="w-full"
+              [feedback]="false"
+              placeholder="Ingresa tu contraseña"
+            ></p-password>
           </span>
         </div>
 
-        <div class="field mb-3">
-          <label for="password">Contraseña</label>
-          <p-password id="password" toggleMask inputStyleClass="w-full" [feedback]="false" />
-        </div>
+        <!-- Botón -->
+        <button
+          pButton
+          label="Ingresar"
+          type="submit"
+          class="w-full mt-3 login-btn"
+          [disabled]="loginForm.invalid"
+        ></button>
 
-        <button pButton label="Ingresar" class="w-full mt-3"></button>
+        <!-- Enlace a registro -->
+        <div class="text-center mt-4 register-container">
+          <span class="register-text">¿No tienes una cuenta?</span>
+          <a routerLink="/auth/register" class="register-link">Regístrate como paciente</a>
+        </div>
       </div>
     </form>
   </div>
