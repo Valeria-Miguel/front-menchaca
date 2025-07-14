@@ -35,7 +35,7 @@
             <i class="pi pi-lock"></i>
             <p-password
               id="password"
-              formControlName="password"
+              formControlName="contrasena"
               toggleMask
               inputStyleClass="w-full"
               [feedback]="false"
@@ -62,3 +62,24 @@
     </form>
   </div>
 </div>
+
+<!-- QR MFA (si se está activando por primera vez) -->
+<div *ngIf="showQRCode" class="qr-container">
+  <p>Escanea este código QR en tu app de autenticación:</p>
+  <img [src]="qrUrl" alt="QR MFA" class="qr-image" />
+</div>
+
+<!-- Formulario de MFA -->
+<form [formGroup]="mfaForm" *ngIf="showMFAInput" (ngSubmit)="onSubmitMFA()" class="mfa-form">
+  <label for="totp">Código de autenticación (MFA)</label>
+  <input
+    type="text"
+    pInputText
+    formControlName="totp"
+    maxlength="6"
+    placeholder="Ingresa tu código de 6 dígitos"
+    class="w-full"
+  />
+  <button pButton type="submit" label="Verificar MFA" class="w-full mt-2"></button>
+</form>
+
