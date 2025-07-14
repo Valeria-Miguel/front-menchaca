@@ -3,6 +3,7 @@ import { DashboardComponent } from './dashboard.component';
 import { PacienteComponent } from './paciente/paciente.component';
 import { DoctorComponent } from './doctor/doctor.component';
 import { EnfermeraComponent } from './enfermera/enfermera.component';
+import { permissionGuard } from '../../guards/permission.guard';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
@@ -12,11 +13,16 @@ export const DASHBOARD_ROUTES: Routes = [
       {
         path: 'paciente',
         component: PacienteComponent,
+         canActivate: [permissionGuard],
+         data: { permissions: ['solicitar_cita'] }
       },
       {
         path: 'doctor',
         component: DoctorComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['ver_expedientes'] }
       },
+
       {
         path: 'enfermera',
         component: EnfermeraComponent,

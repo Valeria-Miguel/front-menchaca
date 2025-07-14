@@ -5,6 +5,8 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+
 
 
 interface TokenData {
@@ -26,6 +28,13 @@ interface LoginResponse {
   message: string;
   statusCode: number;
   intCode?: string;
+}
+
+interface TokenPayload {
+  email: string;
+  exp: number;
+  permisos: string[];
+  rol: string;
 }
 
 
@@ -166,6 +175,29 @@ isTokenExpired(): boolean {
   const expiresAt = this.getTokenExpiration();
   return !expiresAt || Date.now() > expiresAt;
 }
+
+getDecodedToken(): TokenPayload | null {
+  const token = this.getToken();
+  if (!token) return null;
+
+  try {
+    return jwtDecode<TokenPayload>(token);
+  } catch (e) {
+    console.error('Error al decodificar token:', e);
+    return null;
+  }
+}
+
+hasPermission(required: string): boolean {
+  const payload = this.getDecodedToken();
+  return payload?.permisos.includes(required) || false;
+}
+
+hasAnyPermission(perms: string[]): boolean {
+  const payload = this.getDecodedToken();
+  return perms.some(p => payload?.permisos.includes(p));
+}
+
 
 }
 

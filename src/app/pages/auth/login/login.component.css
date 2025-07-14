@@ -189,3 +189,12 @@
 .ng-invalid.ng-touched .p-password input {
   border-color: #e24c4c !important;
 } 
+.qr-container {
+  text-align: center;
+}
+
+.qr-image {
+  width: 150px;
+  height: 150px;
+  margin-top: 10px;
+}

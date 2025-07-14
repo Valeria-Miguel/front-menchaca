@@ -63,23 +63,47 @@
   </div>
 </div>
 
-<!-- QR MFA (si se está activando por primera vez) -->
-<div *ngIf="showQRCode" class="qr-container">
-  <p>Escanea este código QR en tu app de autenticación:</p>
-  <img [src]="qrUrl" alt="QR MFA" class="qr-image" />
-</div>
+<!-- Modal MFA -->
+<p-dialog
+  header="Verificación MFA"
+  [(visible)]="showMFAInput"
+  [modal]="true"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '30vw' }"
+>
+  <!-- QR si se está activando por primera vez -->
+  <div *ngIf="showQRCode" class="qr-container mb-3">
+    <p>Escanea este código QR en tu app de autenticación:</p>
+    <img [src]="qrUrl" alt="QR MFA" class="qr-image" />
+  </div>
 
-<!-- Formulario de MFA -->
-<form [formGroup]="mfaForm" *ngIf="showMFAInput" (ngSubmit)="onSubmitMFA()" class="mfa-form">
-  <label for="totp">Código de autenticación (MFA)</label>
-  <input
-    type="text"
-    pInputText
-    formControlName="totp"
-    maxlength="6"
-    placeholder="Ingresa tu código de 6 dígitos"
-    class="w-full"
-  />
-  <button pButton type="submit" label="Verificar MFA" class="w-full mt-2"></button>
-</form>
+  <!-- Formulario MFA -->
+  <form [formGroup]="mfaForm" (ngSubmit)="onSubmitMFA()">
+    <label for="totp">Código de autenticación (6 dígitos)</label>
+    <input
+      id="totp"
+      type="text"
+      pInputText
+      formControlName="totp"
+      maxlength="6"
+      placeholder="Ej. 123456"
+      class="w-full mt-2"
+    />
+    <small *ngIf="mfa['totp'].touched && mfa['totp'].errors" class="text-red-500">
+      <span *ngIf="mfa['totp'].errors['required']">Campo obligatorio</span>
+      <span *ngIf="mfa['totp'].errors['minlength'] || mfa['totp'].errors['maxlength']">
+        Debe tener 6 dígitos
+      </span>
+    </small>
+
+    <button
+      pButton
+      type="submit"
+      label="Verificar MFA"
+      class="w-full mt-3"
+      [disabled]="mfaForm.invalid"
+    ></button>
+  </form>
+</p-dialog>
 
