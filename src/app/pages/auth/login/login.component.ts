@@ -79,8 +79,8 @@ export class LoginComponent {
         }
 
         // Login exitoso normal (sin MFA)
-        this.redirectByIntCode(res?.intCode || 'default');
-        console.log('intCode recibido del backend:', res?.intCode);
+        this.redirectByIntCode(data?.intCode || 'default');
+        console.log('intCode recibido del backend:', data?.intCode);
 
 
   },
@@ -94,7 +94,7 @@ export class LoginComponent {
 
   onSubmitMFA() {
   if (this.mfaForm.invalid) {
-    this.mfaForm.markAllAsTouched();
+    this.mfaForm.markAllAsTouched(); 
     return;
   }
 
@@ -108,7 +108,10 @@ export class LoginComponent {
   // Asegúrate que `verifyMFA` reciba un objeto en el servicio también
   this.authService.verifyMFA({ tempToken: this.tempToken, totp }).subscribe({
     next: res => {
-    this.redirectByIntCode(res?.intCode || 'default');
+    
+  this.redirectByIntCode(res?.intCode || 'default');
+
+
 
   },
     error: err => {

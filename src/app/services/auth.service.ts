@@ -6,11 +6,8 @@ import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 
-interface LoginResponse {
-  data: LoginResponse;
-  message: string;
-  statusCode: number;
 
+interface TokenData {
   token?: string;
   refreshToken?: string;
   tokenType?: string;
@@ -21,7 +18,14 @@ interface LoginResponse {
   qrUrl?: string;
   secret?: string;
   rol?: string;
-   intCode?: string; // ✅ NUEVO
+  intCode?: string;
+}
+
+interface LoginResponse {
+  data: TokenData;
+  message: string;
+  statusCode: number;
+  intCode?: string;
 }
 
 
@@ -59,9 +63,14 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
       if (res.token) {
         this.setToken(res.token);
         if (res.refreshToken) {
-          localStorage.setItem(this.refreshTokenKey, res.refreshToken);
-        }
-        this._isAuthenticated.next(true);
+      this.setRefreshToken(res.refreshToken);
+    }
+    if (res.expiresIn) {
+      const expiresAt = Date.now() + res.expiresIn * 1000;
+      localStorage.setItem('tokenExpiresAt', expiresAt.toString());
+    }
+    this._isAuthenticated.next(true);
+      
       } else if (res.tempToken) {
         localStorage.setItem(this.tempTokenKey, res.tempToken);
       }
@@ -81,15 +90,24 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
     totp: data.totp
   }).pipe(
     tap(res => {
-      if (res.token) {
-        this.setToken(res.token);
-        if (res.refreshToken) {
-          localStorage.setItem(this.refreshTokenKey, res.refreshToken);
+    const data = res.data;
+      console.log('🟢 Token:', data.token);
+  console.log('🟢 Refresh:', data.refreshToken);
+  console.log('🟢 Expira en:', data.expiresIn);
+
+      if (data.token) {
+        this.setToken(data.token);
+        if (data.refreshToken) {
+          this.setRefreshToken(data.refreshToken);
+        }
+        if (data.expiresIn) {
+          const expiresAt = Date.now() + data.expiresIn * 1000;
+          localStorage.setItem('tokenExpiresAt', expiresAt.toString());
         }
         this._isAuthenticated.next(true);
-        localStorage.removeItem(this.tempTokenKey);
       }
     })
+
   );
 }
 
@@ -98,7 +116,7 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
     return localStorage.getItem(this.tokenKey);
   }
 
-  private setToken(token: string): void {
+  public setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
 
@@ -109,5 +127,45 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
     this._isAuthenticated.next(false);
     this.router.navigate(['/auth/login']);
   }
+
+  private setRefreshToken(token: string): void {
+  localStorage.setItem(this.refreshTokenKey, token);
+}
+
+
+  refreshToken(token: string): Observable<LoginResponse> {
+  return this.http.post<LoginResponse>(`${this.apiUrl}/refresh`, {
+    refreshToken: token
+  }).pipe(
+    tap(res => {
+      const data = res.data;
+      if (data.token) {
+        this.setToken(data.token);
+        if (data.refreshToken) {
+          this.setRefreshToken(data.refreshToken);
+        }
+        if (data.expiresIn) {
+          const expiresAt = Date.now() + data.expiresIn * 1000;
+          localStorage.setItem('tokenExpiresAt', expiresAt.toString());
+        }
+      }
+    })
+  );
+}
+
+  getRefreshToken(): string | null {
+  return localStorage.getItem(this.refreshTokenKey);
+}
+
+getTokenExpiration(): number | null {
+  const expiresAt = localStorage.getItem('tokenExpiresAt');
+  return expiresAt ? parseInt(expiresAt, 10) : null;
+}
+
+isTokenExpired(): boolean {
+  const expiresAt = this.getTokenExpiration();
+  return !expiresAt || Date.now() > expiresAt;
+}
+
 }
 

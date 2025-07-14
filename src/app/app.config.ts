@@ -7,6 +7,8 @@ import {provideAnimations} from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 //import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { TokenInterceptor } from './interceptors/token.interceptor';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }), 
@@ -19,7 +21,12 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),
-    provideAnimations()
+    provideAnimations(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    }
   ]
 };
 
