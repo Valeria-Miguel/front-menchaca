@@ -1,5 +1,6 @@
 <div class="paciente-dashboard">
   <h2>Panel del Paciente</h2>
+<p-toast></p-toast>
 
    <button 
       pButton 
@@ -10,6 +11,7 @@
     </button>
   <!-- BOTONES DE ACCIONES (quitamos el botón de Recetas de aquí) -->
   <div class="acciones mb-3">
+    
     <button pButton label="Agregar Cita" icon="pi pi-plus" class="mr-2" (click)="showAgregarCita = true"></button>
     <button pButton label="Historial" icon="pi pi-calendar" class="mr-2" (click)="showHistorial = true"></button>
   </div>
@@ -50,13 +52,15 @@
   <p *ngIf="!loading && citas.length === 0">No tienes citas programadas.</p>
   
   <!-- MODAL: AGREGAR CITA -->
-  <p-dialog 
+<p-dialog 
   header="Agendar Nueva Cita" 
   [(visible)]="showAgregarCita" 
   [modal]="true" 
   [style]="{width: '400px'}" 
   [closable]="true"
-  (onHide)="nuevaCita = { tipo: '', id_consultorio: 0, id_horario: 0, fecha_hora: '' }"
+  [contentStyle]="{ 'overflow': 'visible' }"
+  (onHide)="resetearCita()"
+
 >
     <div class="p-fluid">
     <div class="field">
@@ -96,15 +100,19 @@
   </p-dropdown>
 </div>
     
-   <div class="field">
+<div class="field" *ngIf="showAgregarCita">
   <label for="fecha">Fecha y Hora</label>
-  <p-calendar [(ngModel)]="nuevaCita.fecha_hora" 
-             [showTime]="true" 
-             hourFormat="24"
-             name="fecha"
-             required
-             inputId="fecha"></p-calendar>
+  <p-calendar 
+  [(ngModel)]="nuevaCita.fecha_hora" 
+  [showTime]="true" 
+  hourFormat="24" 
+  inputId="fecha"
+  [appendTo]="'body'"
+  required>
+</p-calendar>
+
 </div>
+
 
     <button pButton label="Guardar" class="mt-3" (click)="agendarCita()"></button>
   </div>
@@ -138,12 +146,13 @@
   [modal]="true" 
   [style]="{ width: '450px' }">
   
-  <div *ngIf="recetaSeleccionada">
-    <p><strong>Fecha:</strong> {{ recetaSeleccionada.fecha }}</p>
-    <p><strong>Medicamento:</strong> {{ recetaSeleccionada.medicamento }}</p>
-    <p><strong>Dosis:</strong> {{ recetaSeleccionada.dosis }}</p>
-    <p><strong>Consultorio:</strong> {{ recetaSeleccionada.id_consultorio }}</p>
-  </div>
+<div *ngIf="recetaSeleccionada">
+  <p><strong>Fecha:</strong> {{ recetaSeleccionada.Fecha | date:'shortDate' }}</p>
+  <p><strong>Medicamento:</strong> {{ recetaSeleccionada.Medicamento }}</p>
+  <p><strong>Dosis:</strong> {{ recetaSeleccionada.Dosis }}</p>
+  <p><strong>Consultorio:</strong> {{ recetaSeleccionada.NombreConsultorio }}</p>
+</div>
+
 
   <ng-template pTemplate="footer">
     <button pButton label="Cerrar" (click)="showRecetas = false" icon="pi pi-times"></button>
@@ -151,4 +160,5 @@
 </p-dialog>
 
 </div>
+
 

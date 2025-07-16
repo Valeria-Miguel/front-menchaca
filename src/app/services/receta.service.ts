@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Receta {
-  id_receta: number;
-  fecha: string;
-  medicamento: string;
-  dosis: string;
-  id_consultorio: number;
+  ID: number;
+  Fecha: string;
+  Medicamento: string;
+  Dosis: string;
+  IDConsultorio: number;
+  NombreConsultorio: string;
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +20,9 @@ export class RecetaService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerRecetaPorID(id_receta: number): Observable<Receta> {
-    return this.http.post<Receta>(`${this.apiUrl}/recetaget`, { id_receta });
-  }
+
+  obtenerRecetaPorID(id_receta: number): Observable<{ data: Receta }> {
+  return this.http.post<{ data: Receta }>(`${this.apiUrl}/recetaget`, { id_receta });
+}
+
 }

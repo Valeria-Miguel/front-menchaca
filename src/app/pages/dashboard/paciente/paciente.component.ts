@@ -15,6 +15,7 @@ import { Consulta } from '../../../services/consulta.service';
 import { Receta, RecetaService } from '../../../services/receta.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-paciente',
@@ -30,7 +31,8 @@ import { CalendarModule } from 'primeng/calendar';
     InputTextModule,
     MessageModule,
     DropdownModule,
-     CalendarModule
+     CalendarModule,
+    ToastModule,
   ],
   providers: [MessageService]
 })
@@ -145,18 +147,46 @@ agendarCita() {
 }
 
 private validarCita(): boolean {
-  if (!this.nuevaCita.tipo) {
+  let valido = true;
+
+  if (!this.nuevaCita.tipo || this.nuevaCita.tipo.trim() === '') {
     this.messageService.add({
       severity: 'warn',
       summary: 'Validación',
       detail: 'El tipo de consulta es requerido'
     });
-    return false;
+    valido = false;
   }
-  // Agrega más validaciones según necesites
-  return true;
-}
 
+  if (!this.nuevaCita.id_consultorio || this.nuevaCita.id_consultorio === 0) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Validación',
+      detail: 'Debe seleccionar un consultorio'
+    });
+    valido = false;
+  }
+
+  if (!this.nuevaCita.id_horario || this.nuevaCita.id_horario === 0) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Validación',
+      detail: 'Debe seleccionar un horario'
+    });
+    valido = false;
+  }
+
+  if (!this.nuevaCita.fecha_hora) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Validación',
+      detail: 'Debe seleccionar fecha y hora'
+    });
+    valido = false;
+  }
+
+  return valido;
+}
 private obtenerMensajeError(error: any): string {
   if (error.error?.message) {
     return error.error.message;
@@ -170,10 +200,11 @@ private obtenerMensajeError(error: any): string {
   return 'Error desconocido al agendar la cita';
 }
 
- verReceta(id_receta: number) {
+verReceta(id_receta: number) {
   this.recetaService.obtenerRecetaPorID(id_receta).subscribe({
-    next: (receta: Receta) => {
-      this.recetaSeleccionada = receta;
+    next: (res: any) => {
+      console.log('Receta recibida:', res);
+      this.recetaSeleccionada = res.data; // asegurado
       this.showRecetas = true;
     },
     error: () => {
@@ -181,6 +212,8 @@ private obtenerMensajeError(error: any): string {
     }
   });
 }
+
+
 
 cargarConsultorios() {
   this.consultaService.obtenerConsultoriosDisponibles().subscribe({
@@ -201,5 +234,17 @@ cargarHorarios() {
     error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los horarios' })
   });
 }
+
+
+resetearCita() {
+  this.nuevaCita = {
+    tipo: '',
+    id_consultorio: 0,
+    id_horario: 0,
+    fecha_hora: new Date()
+  };
+}
+
+
 
 }
