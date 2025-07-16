@@ -7,6 +7,9 @@ import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
+import { PacienteService } from '../../../services/paciente.service';
+import { DialogModule } from 'primeng/dialog';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-register',
@@ -21,25 +24,28 @@ import { Router } from '@angular/router';
     PasswordModule,
     ButtonModule,
     MessageModule,
-    RouterLink 
+    RouterLink,
+    DialogModule 
   ]
+  
 })
 export class RegisterComponent {
   password: string = '';
   confirmPassword: string = '';
   showPasswordError: boolean = false;
-
-  passwordsMatch(): boolean {
-    return this.password === this.confirmPassword;
-  }
-
-  validatePasswords() {
-    this.showPasswordError = !this.passwordsMatch();
-  }
-
   registerForm: FormGroup;
+  showMFAModal = false;
+  mfaData: any;
+  verificationCode = '';
 
-  constructor(private fb: FormBuilder, private router: Router) {
+
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private pacienteService: PacienteService,
+    private messageService: MessageService
+  ) {
     this.registerForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
       appaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
@@ -48,12 +54,20 @@ export class RegisterComponent {
       password: ['', [
         Validators.required,
         Validators.minLength(12),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/)
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/)
+
       ]],
       confirmPassword: ['', [Validators.required]]
     }, { validator: this.passwordMatchValidator });
   }
 
+  passwordsMatch(): boolean {
+    return this.password === this.confirmPassword;
+  }
+
+  validatePasswords() {
+    this.showPasswordError = !this.passwordsMatch();
+  }
   passwordMatchValidator(form: FormGroup) {
     return form.get('password')?.value === form.get('confirmPassword')?.value
       ? null : { mismatch: true };
@@ -62,21 +76,58 @@ export class RegisterComponent {
   get f() { return this.registerForm.controls; }
 
  
+  getQRCodeImage() {
+    if (!this.mfaData?.mfaUrl) return '';
+    const encodedUrl = encodeURIComponent(this.mfaData.mfaUrl);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedUrl}`;
+  }
 
   onSubmit() {
   if (this.registerForm.invalid) {
-    this.registerForm.markAllAsTouched(); // Muestra errores si no se tocó un campo
+    this.registerForm.markAllAsTouched();
     return;
   }
 
-  // Aquí iría la lógica para enviar los datos al backend si estuviera conectado
+  const formData = this.registerForm.value;
 
-  console.log('Formulario válido', this.registerForm.value);
+  const payload = {
+    nombre: formData.nombre,
+    appaterno: formData.appaterno,
+    apmaterno: formData.apmaterno,
+    correo: formData.correo,
+    contrasena: formData.password // 👈 aquí la corrección clave
+  };
 
-  // Redireccionar al login (sin backend por ahora)
-  this.router.navigate(['/auth/login']);
-  
+  this.pacienteService.registrarPaciente(payload).subscribe({
+    next: (response) => {
+      this.mfaData = response.data;
+      this.showMFAModal = true;
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Registro exitoso',
+        detail: response.message
+      });
+    },
+    error: (err) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: err.error?.message || 'Error en el registro'
+      });
+    }
+  });
 }
 
+
+
+  closeMFAModal() {
+  this.showMFAModal = false;
+  this.router.navigate(['/auth/login']); // ✅ Redirecciona al login
 }
-    
+
+
+  handleQRImageError() {
+  console.error('Error al cargar la imagen QR');
+  // Puedes implementar un fallback aquí si lo deseas
+}
+}   

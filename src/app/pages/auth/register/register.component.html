@@ -120,3 +120,31 @@
     </form>
   </div>
 </div>
+
+
+<!-- Modal MFA -->
+<!-- Modal MFA -->
+<p-dialog 
+  header="Configura Autenticación en Dos Pasos" 
+  [(visible)]="showMFAModal"
+  [modal]="true" 
+  [closable]="true"  
+  [style]="{ width: '450px' }"
+  (onHide)="closeMFAModal()" 
+>
+  <div class="text-center">
+    <p>Escanea este código QR con tu aplicación de autenticación:</p>
+    
+    <div class="qr-container mb-4">
+      <img 
+        [src]="getQRCodeImage()" 
+        alt="Código QR MFA"
+        class="qr-image"
+        (error)="handleQRImageError()"
+      >
+    </div>
+
+    <p class="text-sm">O ingresa manualmente este código:</p>
+    <p class="font-mono bg-gray-100 p-2 rounded">{{ mfaData?.mfaSecret }}</p>
+  </div>
+</p-dialog>

@@ -124,7 +124,6 @@
   text-decoration: underline;
 }
 
-/* Estilos específicos para el password input */
 ::ng-deep .p-password input {
   padding-left: 2.5rem !important;
   border: 1px solid #7bc1b7 !important;
@@ -134,7 +133,6 @@
   color: #7bc1b7 !important;
 }
 
-/* Soporte para tema oscuro */
 @media (prefers-color-scheme: dark) {
   .login-wrapper {
     background: linear-gradient(135deg, #0d2b2e, #0a3a47);
@@ -184,17 +182,25 @@
   margin-top: 0.3rem;
 }
 
-/* Estilo para campos inválidos */
 .ng-invalid.ng-touched .p-inputtext,
 .ng-invalid.ng-touched .p-password input {
   border-color: #e24c4c !important;
 } 
+
+
 .qr-container {
   text-align: center;
+  margin: 20px 0;
 }
 
-.qr-image {
-  width: 150px;
-  height: 150px;
-  margin-top: 10px;
+.qr-container img {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: white;
+  max-width: 100%;
+  height: auto;
+}
+
+.p-dialog .p-dialog-content {
+  overflow: visible;
 }

@@ -1,0 +1,17 @@
+/* paciente.component.css */
+.paciente-dashboard {
+  padding: 2rem;
+}
+
+.acciones button {
+  margin-right: 1rem;
+}
+/* En paciente.component.css */
+.acciones-table button {
+  margin-right: 0.5rem;
+}
+
+/* Estilo para el botón de receta */
+.p-button-rounded {
+  border-radius: 50%;
+}

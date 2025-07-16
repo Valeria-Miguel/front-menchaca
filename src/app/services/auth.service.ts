@@ -7,8 +7,6 @@ import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
-
-
 interface TokenData {
   token?: string;
   refreshToken?: string;
@@ -60,6 +58,15 @@ export class AuthService {
     this._isAuthenticated.next(!!token);
   }
 
+  getUsuario() {
+  const token = this.getToken();
+  if (!token) return null;
+
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  return payload; // Contiene campos como id, rol, permisos, etc.
+}
+
+
 login(credentials: { correo: string; password: string; totp?: string }): Observable<LoginResponse> {
   return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
     correo: credentials.correo,
@@ -86,7 +93,7 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
     }),
     catchError(err =>   {
       console.error('Error en login:', err);
-      return throwError(() => err); // ❗️ Lanza el error para que se capture en login.component.ts
+      return throwError(() => err); 
     })
   );
 }
@@ -100,9 +107,9 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
   }).pipe(
     tap(res => {
     const data = res.data;
-      console.log('🟢 Token:', data.token);
-  console.log('🟢 Refresh:', data.refreshToken);
-  console.log('🟢 Expira en:', data.expiresIn);
+      console.log(' Token:', data.token);
+      console.log(' Refresh:', data.refreshToken);
+      console.log(' Expira en:', data.expiresIn);
 
       if (data.token) {
         this.setToken(data.token);
@@ -197,6 +204,7 @@ hasAnyPermission(perms: string[]): boolean {
   const payload = this.getDecodedToken();
   return perms.some(p => payload?.permisos.includes(p));
 }
+
 
 
 }

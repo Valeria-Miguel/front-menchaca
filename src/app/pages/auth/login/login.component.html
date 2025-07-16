@@ -64,18 +64,30 @@
 </div>
 
 <!-- Modal MFA -->
+<!-- Modal MFA con botón de cerrar (X) -->
 <p-dialog
   header="Verificación MFA"
   [(visible)]="showMFAInput"
   [modal]="true"
-  [closable]="false"
+  [closable]="true"   
   [dismissableMask]="false"
   [style]="{ width: '30vw' }"
+  (onHide)="onCloseMFAModal()"    
 >
   <!-- QR si se está activando por primera vez -->
   <div *ngIf="showQRCode" class="qr-container mb-3">
     <p>Escanea este código QR en tu app de autenticación:</p>
-    <img [src]="qrUrl" alt="QR MFA" class="qr-image" />
+    <img [src]="getQRCodeImage()" 
+     alt="QR Code"
+     (error)="handleQRImageError()"
+     onerror="this.onerror=null;this.src='assets/img/qr-error-placeholder.png';">
+    <p *ngIf="mfaConfigured" class="text-sm mt-2">
+      O ingresa manualmente el código en tu app de autenticación
+    </p>
+    <p *ngIf="mfaSecret" class="manual-secret">
+  Código secreto: <strong>{{ mfaSecret }}</strong>
+</p>
+
   </div>
 
   <!-- Formulario MFA -->
@@ -106,4 +118,3 @@
     ></button>
   </form>
 </p-dialog>
-

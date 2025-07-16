@@ -1,1 +1,154 @@
-<p>paciente works!</p>
+<div class="paciente-dashboard">
+  <h2>Panel del Paciente</h2>
+
+   <button 
+      pButton 
+      label="Cerrar sesión" 
+      icon="pi pi-sign-out" 
+      class="p-button-danger" 
+      (click)="cerrarSesion()">
+    </button>
+  <!-- BOTONES DE ACCIONES (quitamos el botón de Recetas de aquí) -->
+  <div class="acciones mb-3">
+    <button pButton label="Agregar Cita" icon="pi pi-plus" class="mr-2" (click)="showAgregarCita = true"></button>
+    <button pButton label="Historial" icon="pi pi-calendar" class="mr-2" (click)="showHistorial = true"></button>
+  </div>
+
+  <!-- CITAS FUTURAS -->
+  <p-table [value]="citas" [paginator]="true" [rows]="5" [loading]="loading" *ngIf="citas.length > 0">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Fecha</th>
+        <th>Tipo</th>
+        <th>Diagnóstico</th>
+        <th>Costo</th>
+        <th>Acciones</th> <!-- Nueva columna para acciones -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-cita>
+      <tr>
+        <td>{{ cita.fecha_hora | date:'short' }}</td>
+        <td>{{ cita.tipo }}</td>
+        <td>{{ cita.diagnostico }}</td>
+        <td>{{ cita.costo | currency }}</td>
+        <td>
+          <!-- Botón de Receta para cada fila -->
+          <button pButton 
+                  icon="pi pi-file" 
+                  class="p-button-rounded p-button-sm"
+                  (click)="verReceta(cita.id_receta)" 
+                  *ngIf="cita.id_receta"
+                  pTooltip="Ver receta" 
+                  tooltipPosition="top">
+          </button>
+          <span *ngIf="!cita.id_receta">Sin receta</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p *ngIf="!loading && citas.length === 0">No tienes citas programadas.</p>
+  
+  <!-- MODAL: AGREGAR CITA -->
+  <p-dialog 
+  header="Agendar Nueva Cita" 
+  [(visible)]="showAgregarCita" 
+  [modal]="true" 
+  [style]="{width: '400px'}" 
+  [closable]="true"
+  (onHide)="nuevaCita = { tipo: '', id_consultorio: 0, id_horario: 0, fecha_hora: '' }"
+>
+    <div class="p-fluid">
+    <div class="field">
+      <label for="tipo">Tipo</label>
+      <input id="tipo" type="text" pInputText [(ngModel)]="nuevaCita.tipo" required />
+    </div>
+    
+    <!-- Consultorio Dropdown -->
+<div class="field">
+  <label for="consultorio">Consultorio</label>
+  <p-dropdown 
+    [options]="consultorios" 
+    optionLabel="nombre" 
+    optionValue="id_consultorio" 
+    [(ngModel)]="nuevaCita.id_consultorio"
+    name="consultorio"
+    required>
+    <ng-template let-consultorio pTemplate="item">
+      {{ consultorio.nombre }} (ID: {{ consultorio.id_consultorio }})
+    </ng-template>
+  </p-dropdown>
+</div>
+
+<!-- Horario Dropdown -->
+<div class="field">
+  <label for="horario">Horario</label>
+  <p-dropdown 
+    [options]="horarios" 
+    optionLabel="turno" 
+    optionValue="id_horario" 
+    [(ngModel)]="nuevaCita.id_horario"
+    name="horario"
+    required>
+    <ng-template let-horario pTemplate="item">
+      {{ horario.turno }} (ID: {{ horario.id_horario }})
+    </ng-template>
+  </p-dropdown>
+</div>
+    
+   <div class="field">
+  <label for="fecha">Fecha y Hora</label>
+  <p-calendar [(ngModel)]="nuevaCita.fecha_hora" 
+             [showTime]="true" 
+             hourFormat="24"
+             name="fecha"
+             required
+             inputId="fecha"></p-calendar>
+</div>
+
+    <button pButton label="Guardar" class="mt-3" (click)="agendarCita()"></button>
+  </div>
+</p-dialog>
+  <!-- MODAL: HISTORIAL -->
+  <p-dialog header="Historial de Citas" [(visible)]="showHistorial" [modal]="true" [style]="{width: '700px'}">
+    <p-table [value]="citasPasadas" [paginator]="true" [rows]="5">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Diagnóstico</th>
+          <th>Costo</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-cita>
+        <tr>
+          <td>{{ cita.fecha_hora | date:'short' }}</td>
+          <td>{{ cita.tipo }}</td>
+          <td>{{ cita.diagnostico }}</td>
+          <td>{{ cita.costo | currency }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-dialog>
+
+  <!-- MODAL: RECETAS (simulado por ahora) -->
+<p-dialog 
+  header="Receta médica" 
+  [(visible)]="showRecetas" 
+  [modal]="true" 
+  [style]="{ width: '450px' }">
+  
+  <div *ngIf="recetaSeleccionada">
+    <p><strong>Fecha:</strong> {{ recetaSeleccionada.fecha }}</p>
+    <p><strong>Medicamento:</strong> {{ recetaSeleccionada.medicamento }}</p>
+    <p><strong>Dosis:</strong> {{ recetaSeleccionada.dosis }}</p>
+    <p><strong>Consultorio:</strong> {{ recetaSeleccionada.id_consultorio }}</p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cerrar" (click)="showRecetas = false" icon="pi pi-times"></button>
+  </ng-template>
+</p-dialog>
+
+</div>
+

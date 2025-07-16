@@ -33,6 +33,8 @@ export class LoginComponent {
   tempToken: string | undefined;
   qrUrl: string = '';
   mfaConfigured = false;
+  mfaSecret: string = '';
+
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
@@ -63,17 +65,17 @@ export class LoginComponent {
       next: res => {
           const data = res.data;
         // MFA requerido pero aún no verificado
-        // MFA requerido pero aún no verificado
         if (data?.mfaRequired && data?.tempToken) {
           this.tempToken = data.tempToken;
           this.showMFAInput = true;
           return;
         }
 
-        // MFA se acaba de configurar por primera vez
         if (data?.mfaConfigured && data?.qrUrl) {
           this.tempToken = data.tempToken;
           this.qrUrl = data.qrUrl;
+          this.mfaSecret = data.secret || '';
+          console.log('QR URL recibida:', this.qrUrl);
           this.mfaConfigured = true;
           this.showQRCode = true;
           this.showMFAInput = true;
@@ -139,6 +141,28 @@ export class LoginComponent {
       alert('⚠️ Código de acceso no reconocido: ' + intCode);
 this.router.navigate(['/auth/login']);
   }
+}
+
+onCloseMFAModal() {
+  this.showMFAInput = false;
+  this.showQRCode = false;
+  this.tempToken = undefined;
+  this.qrUrl = '';
+  this.mfaConfigured = false;
+  this.mfaForm.reset(); // Limpia el formulario
+}
+
+getQRCodeImage() {
+  if (!this.qrUrl) return '';
+  
+  // Codifica correctamente la URL OTPAuth
+  const encodedUrl = encodeURIComponent(this.qrUrl);
+  return `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodedUrl}`;
+}
+
+handleQRImageError() {
+  console.error('Error al cargar la imagen QR');
+  // Puedes implementar un fallback aquí si lo deseas
 }
 
 }

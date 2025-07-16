@@ -28,6 +28,13 @@ export const DASHBOARD_ROUTES: Routes = [
         component: EnfermeraComponent,
       },
       {
+  path: 'paciente',
+  component: PacienteComponent,
+  canActivate: [permissionGuard],
+  data: { permissions: ['solicitar_cita'] }
+}
+,
+      {
     path: '**',
     redirectTo: '/auth/login'
   }
