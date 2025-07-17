@@ -15,3 +15,167 @@
 .p-button-rounded {
   border-radius: 50%;
 }
+/* General Dashboard Styling */
+.paciente-dashboard {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Header Styling */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #ffffff;
+  border-bottom: 2px solid #e0e0e0;
+  border-radius: 8px 8px 0 0;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Card Styling */
+.dashboard-card, .table-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Action Buttons */
+.acciones {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.p-button-success {
+  background: #28a745;
+  border-color: #28a745;
+  transition: all 0.3s ease;
+}
+
+.p-button-success:hover {
+  background: #218838;
+  border-color: #218838;
+  transform: translateY(-2px);
+}
+
+.p-button-secondary {
+  background: #6c757d;
+  border-color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.p-button-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Table Styling */
+
+host ::ng-deep .p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #2c3e50;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.acciones-table button {
+  margin-right: 0.5rem;
+}
+
+.no-receta {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Modal Styling */
+:host ::ng-deep .p-dialog {
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .p-dialog-header {
+  background: #007bff;
+  color: #ffffff;
+  border-radius: 8px 8px 0 0;
+}
+
+.expediente-content, .receta-content {
+  padding: 1rem;
+  line-height: 1.6;
+}
+
+.expediente-content h3 {
+  color: #2c3e50;
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.expediente-content ul {
+  padding-left: 1.5rem;
+  color: #34495e;
+}
+
+.expediente-content p, .receta-content p {
+  margin: 0.5rem 0;
+  color: #34495e;
+}
+
+/* Form Styling */
+.p-fluid .field {
+  margin-bottom: 1.5rem;
+}
+
+.p-fluid label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .paciente-dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .acciones {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  :host ::ng-deep .p-dialog {
+    width: 90vw !important;
+  }
+}

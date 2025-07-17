@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+/*import { Injectable } from '@angular/core';
 import {HttpEvent,  HttpHandler,  HttpInterceptor,  HttpRequest,  HttpErrorResponse} from '@angular/common/http';
 import { Observable, throwError, switchMap, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -31,6 +31,7 @@ export class TokenInterceptor implements HttpInterceptor {
         );
       } else {
         this.authService.logout();
+        
         return throwError(() => new Error('Sesión expirada'));
       }
     } else {
@@ -44,3 +45,4 @@ export class TokenInterceptor implements HttpInterceptor {
     }
   }
 }
+*/

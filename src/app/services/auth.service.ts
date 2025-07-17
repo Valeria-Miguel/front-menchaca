@@ -1,4 +1,3 @@
-// ✅ Servicio adaptado: auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
@@ -31,11 +30,10 @@ interface LoginResponse {
 interface TokenPayload {
   email: string;
   exp: number;
+    id: string;
   permisos: string[];
   rol: string;
 }
-
-
 
 @Injectable({
   providedIn: 'root'
@@ -63,9 +61,8 @@ export class AuthService {
   if (!token) return null;
 
   const payload = JSON.parse(atob(token.split('.')[1]));
-  return payload; // Contiene campos como id, rol, permisos, etc.
+  return payload; 
 }
-
 
 login(credentials: { correo: string; password: string; totp?: string }): Observable<LoginResponse> {
   return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
@@ -75,7 +72,6 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
   }).pipe(
     tap(response => {
       const res = response.data;
-
       if (res.token) {
         this.setToken(res.token);
         if (res.refreshToken) {
@@ -86,7 +82,6 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
       localStorage.setItem('tokenExpiresAt', expiresAt.toString());
     }
     this._isAuthenticated.next(true);
-      
       } else if (res.tempToken) {
         localStorage.setItem(this.tempTokenKey, res.tempToken);
       }
@@ -97,8 +92,6 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
     })
   );
 }
-
-
 
   verifyMFA(data: { tempToken: string; totp: string }): Observable<LoginResponse> {
   return this.http.post<LoginResponse>(`${this.apiUrl}/verify-mfa`, {
@@ -123,10 +116,8 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
         this._isAuthenticated.next(true);
       }
     })
-
   );
 }
-
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
@@ -148,23 +139,23 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
   localStorage.setItem(this.refreshTokenKey, token);
 }
 
+refreshToken(): Observable<any> {
+  console.log("🔁 Intentando refrescar token...");
+  const refreshToken = localStorage.getItem('refresh_token');
 
-  refreshToken(token: string): Observable<LoginResponse> {
-  return this.http.post<LoginResponse>(`${this.apiUrl}/refresh`, {
-    refreshToken: token
-  }).pipe(
-    tap(res => {
-      const data = res.data;
-      if (data.token) {
-        this.setToken(data.token);
-        if (data.refreshToken) {
-          this.setRefreshToken(data.refreshToken);
-        }
-        if (data.expiresIn) {
-          const expiresAt = Date.now() + data.expiresIn * 1000;
-          localStorage.setItem('tokenExpiresAt', expiresAt.toString());
-        }
-      }
+  if (!refreshToken) {
+    console.warn("⚠️ No hay refresh_token en localStorage");
+    return throwError(() => new Error('No refresh token'));
+  }
+
+  return this.http.post<any>(`${this.apiUrl}/auth/refresh`, { refreshToken }).pipe(
+    tap((response) => {
+      console.log("✅ Refresh token exitoso:", response);
+      this.setToken(response.accessToken);
+    }),
+    catchError((error) => {
+      console.error("❌ Error al refrescar token:", error);
+      return throwError(() => error);
     })
   );
 }
@@ -174,8 +165,23 @@ login(credentials: { correo: string; password: string; totp?: string }): Observa
 }
 
 getTokenExpiration(): number | null {
-  const expiresAt = localStorage.getItem('tokenExpiresAt');
-  return expiresAt ? parseInt(expiresAt, 10) : null;
+  const token = this.getToken();
+  if (!token) {
+    console.warn("⚠️ No se encontró token");
+    return null;
+  }
+
+  try {
+    const decoded: any = jwtDecode(token);
+    const expMillis = decoded.exp * 1000;
+    console.log("🕒 Fecha actual:", new Date().toISOString());
+    console.log("📅 Token expira en:", new Date(expMillis).toISOString());
+    console.log("⏳ Expira en (minutos):", Math.round((expMillis - Date.now()) / 60000));
+    return expMillis;
+  } catch (e) {
+    console.error('❌ Error al decodificar token para obtener expiración:', e);
+    return null;
+  }
 }
 
 isTokenExpired(): boolean {
@@ -195,8 +201,13 @@ getDecodedToken(): TokenPayload | null {
   }
 }
 
+getIdEmpleado(): number {
+    const decoded = this.getDecodedToken();
+    return decoded && decoded.id ? parseInt(decoded.id, 10) : 0;
+  }
+
 hasPermission(required: string): boolean {
-  const payload = this.getDecodedToken();
+  const payload = this.getDecodedToken(); 
   return payload?.permisos.includes(required) || false;
 }
 
@@ -204,8 +215,5 @@ hasAnyPermission(perms: string[]): boolean {
   const payload = this.getDecodedToken();
   return perms.some(p => payload?.permisos.includes(p));
 }
-
-
-
 }
 

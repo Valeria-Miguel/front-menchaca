@@ -1,1 +1,215 @@
-<p>enfermera works!</p>
+<div class="enfermeria-dashboard">
+  <p-card class="dashboard-card">
+    <ng-template pTemplate="header">
+      <div class="dashboard-header">
+        <h2>Panel de Enfermería</h2>
+        <div class="header-actions">
+          <button 
+            pButton 
+            label="Cerrar sesión" 
+            icon="pi pi-sign-out" 
+            class="p-button-outlined p-button-danger" 
+            (click)="cerrarSesion()">
+          </button>
+        </div>
+      </div>
+    </ng-template>
+
+    <p-toast></p-toast>
+
+    <div class="mb-3 acciones">
+      <button 
+        pButton 
+        label="Citas Médicas" 
+        class="p-button-success mr-2" 
+        [ngClass]="{'p-button-outlined': vistaActiva !== 'citas'}" 
+        (click)="cambiarVista('citas')">
+      </button>
+      <button 
+        pButton 
+        label="Expedientes" 
+        class="p-button-success mr-2" 
+        [ngClass]="{'p-button-outlined': vistaActiva !== 'expedientes'}" 
+        (click)="cambiarVista('expedientes')">
+      </button>
+    </div>
+
+    <!-- Tabla de Citas -->
+    <div *ngIf="vistaActiva === 'citas'">
+      <p-card class="table-card">
+        <h3>Citas Médicas</h3>
+        <div class="p-input-icon-left mb-2">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="buscarCitas" 
+            placeholder="Buscar por nombre, fecha, diagnóstico..." 
+            (input)="filtrarCitas($event)" />
+        </div>
+        <p-table 
+          [value]="citas" 
+          [paginator]="true" 
+          [rows]="5" 
+          [loading]="loading" 
+          [globalFilterFields]="['nombre_completo', 'fecha_hora', 'tipo', 'diagnostico', 'turno', 'nombre_empleado', 'area_empleado', 'tipo_consultorio', 'nombre_consultorio', 'costo']" 
+          #dtCitas 
+          styleClass="p-datatable-striped">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Paciente</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Turno</th>
+              <th>Empleado</th>
+              <th>Área</th>
+              <th>Consultorio</th>
+              <th>Costo</th>
+              <th>Receta</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-cita>
+            <tr>
+              <td>{{ cita.nombre_completo || 'N/A' }}</td>
+              <td>{{ cita.fecha_hora }}</td>
+              <td>{{ cita.tipo }}</td>
+              <td>{{ cita.turno }}</td>
+              <td>{{ cita.nombre_empleado }} {{ cita.appaterno_empleado }} {{ cita.apmaterno_empleado }}</td>
+              <td>{{ cita.area_empleado }}</td>
+              <td>{{ cita.nombre_consultorio }} ({{ cita.tipo_consultorio }})</td>
+              <td>{{ (cita.costo || 0) | currency:'MXN' }}</td>
+              <td>
+                <button 
+                  pButton 
+                  icon="pi pi-file" 
+                  class="p-button-info p-button-sm" 
+                  (click)="verReceta(cita.id_consulta)" 
+                  [disabled]="!cita.fecha_receta.Valid" 
+                  pTooltip="Ver receta">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <!-- Tabla de Expedientes -->
+    <div *ngIf="vistaActiva === 'expedientes'">
+      <p-card class="table-card">
+        <h3>Expedientes</h3>
+        <div class="p-input-icon-left mb-2">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="buscarExpedientes" 
+            placeholder="Buscar por nombre, seguro..." 
+            (input)="filtrarExpedientes($event)" />
+        </div>
+        <p-table 
+          [value]="expedientes" 
+          [paginator]="true" 
+          [rows]="5" 
+          [globalFilterFields]="['nombre_paciente', 'seguro', 'fecha_creacion', 'paciente.id_paciente']" 
+          #dtExpedientes 
+          styleClass="p-datatable-striped">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID Expediente</th>
+              <th>ID Paciente</th>
+              <th>Paciente</th>
+              <th>Seguro</th>
+              <th>Fecha de Creación</th>
+              <th>Antecedentes</th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-expediente>
+            <tr>
+              <td>{{ expediente.id_expediente }}</td>
+              <td>{{ expediente.paciente.id_paciente }}</td>
+              <td>{{ expediente.nombre_paciente }}</td>
+              <td>{{ expediente.seguro }}</td>
+              <td>{{ expediente.fecha_creacion || 'N/A' }}</td>
+              <td>{{ expediente.antecedentes && expediente.antecedentes.length > 0 ? expediente.antecedentes.length + ' antecedentes' : 'Sin antecedentes' }}</td>
+              <td>
+                <button 
+                  pButton 
+                  icon="pi pi-eye" 
+                  class="p-button-info p-button-sm" 
+                  (click)="verExpediente(expediente.id_expediente)" 
+                  pTooltip="Ver expediente">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <!-- Modal Receta -->
+    <p-dialog 
+      header="Receta Médica" 
+      [(visible)]="showReceta" 
+      [modal]="true" 
+      [style]="{ width: '600px' }">
+      <div *ngIf="recetaSeleccionada" class="receta-content">
+        <p><strong>Paciente:</strong> {{ recetaSeleccionada.nombre_completo }}</p>
+        <p><strong>Fecha de Cita:</strong> {{ recetaSeleccionada.fecha_hora }}</p>
+        <p><strong>Fecha de Receta:</strong> {{ recetaSeleccionada.fecha_receta.Time | date:'shortDate' }}</p>
+        <p><strong>Medicamento:</strong> {{ recetaSeleccionada.medicamento.String }}</p>
+        <p><strong>Dosis:</strong> {{ recetaSeleccionada.dosis.String }}</p>
+        <p><strong>Diagnóstico:</strong> {{ recetaSeleccionada.diagnostico }}</p>
+        <p><strong>Tipo de Consulta:</strong> {{ recetaSeleccionada.tipo }}</p>
+        <p><strong>Consultorio:</strong> {{ recetaSeleccionada.nombre_consultorio }} ({{ recetaSeleccionada.tipo_consultorio }})</p>
+        <p><strong>Turno:</strong> {{ recetaSeleccionada.turno }}</p>
+        <p><strong>Empleado:</strong> {{ recetaSeleccionada.nombre_empleado }} {{ recetaSeleccionada.appaterno_empleado }} {{ recetaSeleccionada.apmaterno_empleado }}</p>
+        <p><strong>Área del Empleado:</strong> {{ recetaSeleccionada.area_empleado }}</p>
+        <p><strong>Costo:</strong> {{ (recetaSeleccionada.costo || 0) | currency:'MXN' }}</p>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cerrar" 
+          (click)="showReceta = false" 
+          icon="pi pi-times" 
+          class="p-button-text">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Modal Expediente -->
+    <p-dialog 
+      header="Expediente Médico" 
+      [(visible)]="showExpediente" 
+      [modal]="true" 
+      [style]="{ width: '600px' }">
+      <div *ngIf="expedienteSeleccionado" class="expediente-content">
+        <p><strong>ID Expediente:</strong> {{ expedienteSeleccionado.id_expediente }}</p>
+        <p><strong>ID Paciente:</strong> {{ expedienteSeleccionado.paciente.id_paciente }}</p>
+        <p><strong>Paciente:</strong> {{ expedienteSeleccionado.nombre_paciente }}</p>
+        <p><strong>Seguro:</strong> {{ expedienteSeleccionado.seguro }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ expedienteSeleccionado.fecha_creacion || 'N/A' }}</p>
+        <p><strong>Antecedentes:</strong></p>
+        <ul *ngIf="expedienteSeleccionado.antecedentes && expedienteSeleccionado.antecedentes.length > 0; else noAntecedentes">
+          <li *ngFor="let antecedente of expedienteSeleccionado.antecedentes">
+            <strong>{{ antecedente.diagnostico }}</strong>: {{ antecedente.descripcion }}
+          </li>
+        </ul>
+        <ng-template #noAntecedentes>
+          <p>Sin antecedentes registrados</p>
+        </ng-template>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cerrar" 
+          (click)="showExpediente = false" 
+          icon="pi pi-times" 
+          class="p-button-text">
+        </button>
+      </ng-template>
+    </p-dialog>
+  </p-card>
+</div>

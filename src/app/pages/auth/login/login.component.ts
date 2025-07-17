@@ -137,6 +137,9 @@ export class LoginComponent {
     case 'E01':
       this.router.navigate(['/dashboard/enfermera']);
       break;
+      case 'A01':
+      this.router.navigate(['/dashboard/administrador']);
+      break;
     default:
       alert('⚠️ Código de acceso no reconocido: ' + intCode);
 this.router.navigate(['/auth/login']);

@@ -1,1 +1,399 @@
-<p>doctor works!</p>
+<div class="doctor-dashboard">
+  <p-card class="dashboard-card">
+    <ng-template pTemplate="header">
+      <div class="dashboard-header">
+        <h2>Panel de Doctor</h2>
+        <div class="header-actions">
+          <button 
+            pButton 
+            label="Cerrar sesión" 
+            icon="pi pi-sign-out" 
+            class="p-button-outlined p-button-danger" 
+            (click)="cerrarSesion()">
+          </button>
+        </div>
+      </div>
+    </ng-template>
+
+    <p-toast></p-toast>
+
+    <div class="mb-3 acciones">
+      <button 
+        pButton 
+        label="Citas Médicas" 
+        class="p-button-success mr-2" 
+        [ngClass]="{'p-button-outlined': vistaActiva !== 'citas'}" 
+        (click)="cambiarVista('citas')">
+      </button>
+      <button 
+        pButton 
+        label="Expedientes" 
+        class="p-button-success mr-2" 
+        [ngClass]="{'p-button-outlined': vistaActiva !== 'expedientes'}" 
+        (click)="cambiarVista('expedientes')">
+      </button>
+    </div>
+
+    <!-- Tabla de Citas -->
+    <div *ngIf="vistaActiva === 'citas'">
+      <p-card class="table-card">
+        <h3>Citas Médicas</h3>
+        <div class="p-input-icon-left mb-2">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="buscarCitas" 
+            placeholder="Buscar por nombre, fecha, diagnóstico..." 
+            (input)="filtrarCitas($event)" />
+        </div>
+        <p-table 
+          [value]="citas" 
+          [paginator]="true" 
+          [rows]="5" 
+          [loading]="loading" 
+          [globalFilterFields]="['NombreCompleto', 'FechaHora', 'Tipo', 'Diagnostico', 'Turno', 'NombreEmpleado', 'AreaEmpleado', 'TipoConsultorio', 'NombreConsultorio', 'Costo']" 
+          #dtCitas 
+          styleClass="p-datatable-striped">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Paciente</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Turno</th>
+              <th>Área</th>
+              <th>Consultorio</th>
+              <th>Costo</th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-cita>
+            <tr>
+              <td>{{ cita.NombreCompleto || 'N/A' }}</td>
+              <td>{{ cita.FechaHora }}</td>
+              <td>{{ cita.Tipo }}</td>
+              <td>{{ cita.Turno }}</td>
+              <td>{{ cita.AreaEmpleado }}</td>
+              <td>{{ cita.NombreConsultorio }} ({{ cita.TipoConsultorio }})</td>
+              <td>{{ (cita.Costo || 0) | currency:'MXN' }}</td>
+              <td class="acciones-table">
+                <button 
+                  pButton 
+                  icon="pi pi-file" 
+                  class="p-button-info p-button-sm mr-2" 
+                  (click)="verReceta(cita.IDConsulta)" 
+                  [disabled]="!cita?.FechaReceta?.Valid" 
+                  pTooltip="Ver receta">
+                </button>
+                <button 
+                  pButton 
+                  icon="pi pi-pencil" 
+                  class="p-button-info p-button-sm" 
+                  (click)="abrirCrearReceta(cita.IDConsulta)" 
+                  pTooltip="Crear/Actualizar receta">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <!-- Tabla de Expedientes -->
+    <div *ngIf="vistaActiva === 'expedientes'">
+      <p-card class="table-card">
+        <h3>Expedientes</h3>
+        <div class="p-input-icon-left mb-2">
+          <i class="pi pi-search"></i>
+          <input 
+            pInputText 
+            type="text" 
+            [(ngModel)]="buscarExpedientes" 
+            placeholder="Buscar por nombre, seguro..." 
+            (input)="filtrarExpedientes($event)" />
+        </div>
+        <button 
+          pButton 
+          label="Crear Expediente" 
+          icon="pi pi-plus" 
+          class="p-button-success mb-2" 
+          (click)="abrirCrearExpediente()">
+        </button>
+        <p-table 
+          [value]="expedientes" 
+          [paginator]="true" 
+          [rows]="5" 
+          [globalFilterFields]="['nombre_paciente', 'seguro', 'fecha_creacion', 'paciente.id_paciente']" 
+          #dtExpedientes 
+          styleClass="p-datatable-striped">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID Expediente</th>
+              <th>ID Paciente</th>
+              <th>Paciente</th>
+              <th>Seguro</th>
+              <th>Fecha de Creación</th>
+              <th>Antecedentes</th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-expediente>
+            <tr>
+              <td>{{ expediente.id_expediente }}</td>
+              <td>{{ expediente.paciente.id_paciente }}</td>
+              <td>{{ expediente.nombre_paciente }}</td>
+              <td>{{ expediente.seguro }}</td>
+              <td>{{ expediente.fecha_creacion || 'N/A' }}</td>
+              <td>{{ expediente.antecedentes && expediente.antecedentes.length > 0 ? expediente.antecedentes.length + ' antecedentes' : 'Sin antecedentes' }}</td>
+              <td class="acciones-table">
+                <button 
+                  pButton 
+                  icon="pi pi-eye" 
+                  class="p-button-info p-button-sm mr-2" 
+                  (click)="verExpediente(expediente.id_expediente)" 
+                  pTooltip="Ver expediente">
+                </button>
+                <button 
+                  pButton 
+                  icon="pi pi-plus" 
+                  class="p-button-info p-button-sm" 
+                  (click)="abrirCrearAntecedente(expediente.id_expediente)" 
+                  pTooltip="Agregar antecedente">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <!-- Modal Receta -->
+    <p-dialog 
+      header="Receta Médica" 
+      [(visible)]="showReceta" 
+      [modal]="true" 
+      [style]="{ width: '600px' }">
+      <div *ngIf="recetaSeleccionada" class="receta-content">
+        <p><strong>Paciente:</strong> {{ recetaSeleccionada.NombreCompleto }}</p>
+        <p><strong>Fecha de Cita:</strong> {{ recetaSeleccionada.FechaHora }}</p>
+        <p><strong>Fecha de Receta:</strong> {{ recetaSeleccionada.fecha_receta.Time | date:'shortDate' }}</p>
+        <p><strong>Medicamento:</strong> {{ recetaSeleccionada.medicamento.String }}</p>
+        <p><strong>Dosis:</strong> {{ recetaSeleccionada.dosis.String }}</p>
+        <p><strong>Diagnóstico:</strong> {{ recetaSeleccionada.Diagnostico }}</p>
+        <p><strong>Tipo de Consulta:</strong> {{ recetaSeleccionada.tipo }}</p>
+        <p><strong>Consultorio:</strong> {{ recetaSeleccionada.nombre_consultorio }} ({{ recetaSeleccionada.tipo_consultorio }})</p>
+        <p><strong>Turno:</strong> {{ recetaSeleccionada.turno }}</p>
+        <p><strong>Empleado:</strong> {{ recetaSeleccionada.nombre_empleado }} {{ recetaSeleccionada.appaterno_empleado }} {{ recetaSeleccionada.apmaterno_empleado }}</p>
+        <p><strong>Área del Empleado:</strong> {{ recetaSeleccionada.area_empleado }}</p>
+        <p><strong>Costo:</strong> {{ (recetaSeleccionada.Costo || 0) | currency:'MXN' }}</p>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cerrar" 
+          (click)="showReceta = false" 
+          icon="pi pi-times" 
+          class="p-button-text">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Modal Crear/Actualizar Receta -->
+    <p-dialog 
+      header="{{ nuevaReceta.ID ? 'Actualizar Receta' : 'Crear Receta' }}" 
+      [(visible)]="showCrearReceta" 
+      [modal]="true" 
+      [style]="{ width: '500px' }">
+      <div class="p-fluid">
+        <div class="p-field mb-3">
+          <label for="fecha">Fecha</label>
+          <p-calendar 
+            id="fecha" 
+            [(ngModel)]="nuevaReceta.Fecha" 
+            dateFormat="yy-mm-dd" 
+            [showIcon]="true">
+          </p-calendar>
+        </div>
+        <div class="p-field mb-3">
+          <label for="medicamento">Medicamento</label>
+          <input 
+            pInputText 
+            id="medicamento" 
+            [(ngModel)]="nuevaReceta.Medicamento" 
+            class="w-full" />
+        </div>
+        <div class="p-field mb-3">
+          <label for="dosis">Dosis</label>
+          <input 
+            pInputText 
+            id="dosis" 
+            [(ngModel)]="nuevaReceta.Dosis" 
+            class="w-full" />
+        </div>
+        
+        <div class="p-field mb-3">
+          <label for="nombre_consultorio">Nombre Consultorio</label>
+          <input 
+            pInputText 
+            id="nombre_consultorio" 
+            [(ngModel)]="nuevaReceta.NombreConsultorio" 
+            class="w-full" />
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cancelar" 
+          icon="pi pi-times" 
+          class="p-button-secondary" 
+          (click)="showCrearReceta = false">
+        </button>
+        <button 
+          pButton 
+          label="Guardar" 
+          icon="pi pi-check" 
+          class="p-button-success" 
+          (click)="guardarReceta()">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Modal Expediente -->
+    <p-dialog 
+      header="Expediente Médico" 
+      [(visible)]="showExpediente" 
+      [modal]="true" 
+      [style]="{ width: '600px' }">
+      <div *ngIf="expedienteSeleccionado" class="expediente-content">
+        <p><strong>ID Expediente:</strong> {{ expedienteSeleccionado.id_expediente }}</p>
+        <p><strong>Nombre Paciente:</strong> {{ expedienteSeleccionado.paciente.id_paciente }}</p>
+        <p><strong>Paciente:</strong> {{ expedienteSeleccionado.nombre_paciente }}</p>
+        <p><strong>Seguro:</strong> {{ expedienteSeleccionado.seguro }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ expedienteSeleccionado.fecha_creacion || 'N/A' }}</p>
+        <p><strong>Antecedentes:</strong></p>
+        <ul *ngIf="expedienteSeleccionado.antecedentes && expedienteSeleccionado.antecedentes.length > 0; else noAntecedentes">
+          <li *ngFor="let antecedente of expedienteSeleccionado.antecedentes">
+            <strong>{{ antecedente.diagnostico }}</strong>: {{ antecedente.descripcion }}
+          </li>
+        </ul>
+        <ng-template #noAntecedentes>
+          <p>Sin antecedentes registrados</p>
+        </ng-template>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cerrar" 
+          (click)="showExpediente = false" 
+          icon="pi pi-times" 
+          class="p-button-text">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Modal Crear/Actualizar Expediente -->
+    <p-dialog 
+      header="{{ nuevoExpediente.id_expediente ? 'Actualizar Expediente' : 'Crear Expediente' }}" 
+      [(visible)]="showCrearExpediente" 
+      [modal]="true" 
+      [style]="{ width: '500px' }">
+      <div class="p-fluid">
+        <div class="p-field mb- cluste3">
+          <label for="id_paciente">Nombre Paciente</label>
+          <input 
+            pInputText 
+            id="id_paciente" 
+            type="number" 
+            [(ngModel)]="nuevoExpediente.paciente.id_paciente" 
+            class="w-full" />
+        </div>
+        <div class="p-field mb-3">
+          <label for="seguro">Seguro</label>
+          <input 
+            pInputText 
+            id="seguro" 
+            [(ngModel)]="nuevoExpediente.seguro" 
+            class="w-full" />
+        </div>
+        <div class="p-field mb-3">
+          <label for="fecha_creacion">BoxShadowGenerator.com</label>
+          <p-calendar 
+            id="fecha_creacion" 
+            [(ngModel)]="nuevoExpediente.fecha_creacion" 
+            dateFormat="yy-mm-dd" 
+            [showIcon]="true">
+          </p-calendar>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cancelar" 
+          icon="pi pi-times" 
+          class="p-button-secondary" 
+          (click)="showCrearExpediente = false">
+        </button>
+        <button 
+          pButton 
+          label="Guardar" 
+          icon="pi pi-check" 
+          class="p-button-success" 
+          (click)="guardarExpediente()">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Modal Crear/Actualizar Antecedente -->
+    <p-dialog 
+      header="{{ nuevoAntecedente.ID ? 'Actualizar Antecedente' : 'Crear Antecedente' }}" 
+      [(visible)]="showCrearAntecedente" 
+      [modal]="true" 
+      [style]="{ width: '500px' }">
+      <div class="p-fluid">
+        <div class="p-field mb-3">
+          <label for="diagnostico">Diagnóstico</label>
+          <input 
+            pInputText 
+            id="diagnostico" 
+            [(ngModel)]="nuevoAntecedente.Diagnostico" 
+            class="w-full" />
+        </div>
+        <div class="p-field mb-3">
+          <label for="descripcion">Descripción</label>
+          <textarea 
+            pInputTextarea 
+            id="descripcion" 
+            [(ngModel)]="nuevoAntecedente.Descripcion" 
+            class="w-full" 
+            rows="4">
+          </textarea>
+        </div>
+        <div class="p-field mb-3">
+          <label for="fecha_antecedente">Fecha</label>
+          <p-calendar 
+            id="fecha_antecedente" 
+            [(ngModel)]="nuevoAntecedente.Fecha" 
+            dateFormat="yy-mm-dd" 
+            [showIcon]="true">
+          </p-calendar>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cancelar" 
+          icon="pi pi-times" 
+          class="p-button-secondary" 
+          (click)="showCrearAntecedente = false">
+        </button>
+        <button 
+          pButton 
+          label="Guardar" 
+          icon="pi pi-check" 
+          class="p-button-success" 
+          (click)="guardarAntecedente()">
+        </button>
+      </ng-template>
+    </p-dialog>
+  </p-card>
+</div>

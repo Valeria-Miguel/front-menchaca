@@ -1,27 +1,5 @@
-.p-input-icon-left {
-  width: 100%;
-  max-width: 300px;
-}
-
-.p-inputtext {
-  width: 100%;
-  padding-left: 2.5rem;
-}
-
-.p-button {
-  margin-right: 0.5rem;
-}
-
-.p-table {
-  margin-top: 1rem;
-}
-
-.p-table th, .p-table td {
-  white-space: nowrap;
-}
-
 /* General Dashboard Styling */
-.enfermeria-dashboard {
+.admin-dashboard {
   padding: 2rem;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
   min-height: 100vh;
@@ -63,29 +41,91 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
+  flex-wrap: wrap;
 }
 
-.p-button-success {
+:host ::ng-deep .p-button-success {
   background: #28a745;
   border-color: #28a745;
+  color: #ffffff;
   transition: all 0.3s ease;
 }
 
-.p-button-success:hover {
+:host ::ng-deep .p-button-success:hover {
   background: #218838;
   border-color: #218838;
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
-.p-button-success.p-button-outlined {
-  color: #28a745;
+:host ::ng-deep .p-button-success.p-button-outlined {
+  background: transparent;
   border-color: #28a745;
+  color: #28a745;
+  font-weight: 500;
 }
 
-.p-button-success.p-button-outlined:hover {
+:host ::ng-deep .p-button-success.p-button-outlined:hover {
   background: #28a745;
   color: #ffffff;
   transform: translateY(-2px);
+}
+
+:host ::ng-deep .p-button-info {
+  background: #17a2b8;
+  border-color: #17a2b8;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-button-info:hover {
+  background: #138496;
+  border-color: #138496;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+:host ::ng-deep .p-button-info:disabled {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: #ffffff;
+  opacity: 0.6;
+}
+
+:host ::ng-deep .p-button-secondary {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-button-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+:host ::ng-deep .p-button-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-button-danger:hover {
+  background: #c82333;
+  border-color: #c82333;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+:host ::ng-deep .p-button-text {
+  color: #007bff;
+}
+
+:host ::ng-deep .p-button-text:hover {
+  color: #0056b3;
 }
 
 /* Table Styling */
@@ -104,22 +144,9 @@
   white-space: nowrap;
 }
 
-.p-button-info {
-  background: #17a2b8;
-  border-color: #17a2b8;
-  transition: all 0.3s ease;
-}
-
-.p-button-info:hover {
-  background: #138496;
-  border-color: #138496;
-  transform: translateY(-2px);
-}
-
-.p-button-info:disabled {
-  background: #6c757d;
-  border-color: #6c757d;
-  opacity: 0.6;
+.acciones-table {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* Input Styling */
@@ -140,6 +167,22 @@
 .p-inputtext:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Form Styling */
+.p-fluid .p-field {
+  margin-bottom: 1.5rem;
+}
+
+.p-fluid label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.w-full {
+  width: 100%;
 }
 
 /* Modal Styling */
@@ -169,15 +212,9 @@
   color: #34495e;
 }
 
-.expediente-content h3 {
-  color: #2c3e50;
-  margin-top: 1.5rem;
-  font-size: 1.2rem;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
-  .enfermeria-dashboard {
+  .admin-dashboard {
     padding: 1rem;
   }
 

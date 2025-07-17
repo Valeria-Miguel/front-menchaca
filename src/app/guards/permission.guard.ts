@@ -30,3 +30,19 @@ export const permissionGuard: CanActivateFn = (
 
   return true;
 };
+
+export const authGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  
+  if (authService.isTokenExpired()) {
+    authService.logout();
+    router.navigate(['/auth/login']);
+    return false;
+  }
+  
+  return true;
+};

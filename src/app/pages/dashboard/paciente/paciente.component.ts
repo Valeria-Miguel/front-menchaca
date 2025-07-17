@@ -16,6 +16,9 @@ import { Receta, RecetaService } from '../../../services/receta.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { ToastModule } from 'primeng/toast';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { ListboxModule } from 'primeng/listbox';
 
 @Component({
   selector: 'app-paciente',
@@ -23,6 +26,7 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './paciente.component.html',
   styleUrls: ['./paciente.component.css'],
   imports: [
+    CardModule,
     CommonModule,
     FormsModule,
     DialogModule,
@@ -33,6 +37,8 @@ import { ToastModule } from 'primeng/toast';
     DropdownModule,
      CalendarModule,
     ToastModule,
+    DividerModule,
+    ListboxModule
   ],
   providers: [MessageService]
 })
@@ -45,7 +51,7 @@ horarios: any[] = [];
   citasPasadas: Consulta[] = [];
   idPaciente!: number;
   loading = false;
-
+ showExpediente=false
   showAgregarCita = false;
   showHistorial = false;
   showRecetas = false;
@@ -98,6 +104,13 @@ cargarCitas() {
     }
   });
 }
+
+antecedentes = [
+  "Hipertensión arterial: Paciente con presión alta recurrente.",
+  "Hipertensión arterial2: Paciente con presión alta recurrente 2.",
+  "Hipertensión arterial3: Paciente con presión alta recurrente.3",
+  "Hipertensión arterial4: Paciente con presión alta recurrente."
+];
 
 agendarCita() {
   if (!this.validarCita()) {
@@ -244,7 +257,5 @@ resetearCita() {
     fecha_hora: new Date()
   };
 }
-
-
 
 }
